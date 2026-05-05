@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday | A Special Journey</title>
+    <style>
+        :root {
+            --dark-pink: #d81b60;
+            --soft-pink: #fce4ec;
+            --glass: rgba(255, 255, 255, 0.8);
+        }
+
+        body, html {
+            margin: 0; padding: 0;
+            font-family: 'Georgia', serif; /* More elegant font */
+            background: var(--soft-pink);
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+            color: #333;
+        }
+
+        /* PRELOADER */
+        #loader {
+            position: fixed; inset: 0; background: white;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 9999; transition: opacity 1s;
+        }
+        .spinner { width: 50px; height: 50px; border: 5px solid var(--soft-pink); border-top-color: var(--dark-pink); border-radius: 50%; animation: spin 1s infinite linear; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .screen { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; position: relative; }
+        .hidden { display: none !important; }
+
+        /* BUTTONS */
+        button {
+            background-color: var(--dark-pink); color: white; border: none;
+            padding: 22px 60px; font-size: 24px; border-radius: 100px;
+            cursor: pointer; font-weight: bold; z-index: 100;
+            box-shadow: 0 10px 30px rgba(216, 27, 96, 0.4);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        button:hover { transform: scale(1.1) translateY(-5px); box-shadow: 0 15px 40px rgba(216, 27, 96, 0.5); }
+
+        /* DAYS ALIVE COUNTER */
+        #daysAlive {
+            position: fixed; top: 0; width: 100%; padding: 20px 0;
+            font-size: 2.2rem; font-weight: bold; color: var(--dark-pink);
+            background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(10px);
+            z-index: 1000; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.3);
+        }
+
+        /* TYPOGRAPHY */
+        .big-para {
+            font-size: 3.5rem; font-weight: 900; color: var(--dark-pink);
+            margin: 700px 0; /* Huge gaps for slow scroll */
+            line-height: 1.4; padding: 0 15%; min-height: 50vh;
+        }
+
+        .word-wrapper { display: inline-block; white-space: nowrap; margin-right: 0.3em; }
+        .letter { display: inline-block; opacity: 0; transform: translateY(30px); animation: jumpIn 0.8s forwards ease-out; }
+        @keyframes jumpIn { to { opacity: 1; transform: translateY(0); } }
+
+        /* CAKE SECTION */
+        .cake-container { font-size: clamp(200px, 40vw, 400px); cursor: pointer; transition: transform 0.5s; }
+        .flame { font-size: 100px; margin-bottom: -80px; animation: flicker 0.1s infinite; }
+        @keyframes flicker { 0% { opacity: 0.8; transform: scale(1); } 50% { opacity: 1; transform: scale(1.1); } }
+
+        /* GIFTS */
+        .gift-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 80px; padding: 50px; }
+        .gift-box {
+            width: clamp(200px, 25vw, 350px); height: clamp(200px, 25vw, 350px);
+            background: var(--dark-pink); display: flex; align-items: center; justify-content: center;
+            font-size: 100px; border-radius: 40px; cursor: pointer;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.15); transition: 0.3s;
+        }
+        .gift-box:hover { transform: rotate(5deg) scale(1.05); }
+
+        /* MODAL */
+        .photo-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.9);
+            display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 5000;
+        }
+        .photo-card {
+            background: white; padding: 20px; border-radius: 20px;
+            max-width: 80%; text-align: center; animation: zoomIn 0.5s;
+        }
+        @keyframes zoomIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        .emoji { position: fixed; top: -50px; font-size: 35px; z-index: 500; animation: fall linear forwards; pointer-events: none; }
+        @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <div id="loader">
+        <div class="spinner"></div>
+        <p style="margin-top: 20px; font-size: 1.5rem; color: var(--dark-pink);">Preparing your surprise...</p>
+    </div>
+
+    <audio id="bgMusic" loop preload="auto">
+        <source src="music.mp3" type="audio/mpeg">
+    </audio>
+
+    <section id="page1" class="screen">
+        <h1 style="font-size: clamp(3rem, 10vw, 6rem); color: var(--dark-pink); margin-bottom: 40px;">Happy Birthday!</h1>
+        <button onclick="initiateSequence()">Begin Experience</button>
+    </section>
+
+    <section id="page2" class="hidden">
+        <div id="daysAlive"></div>
+        
+        <div id="para-section" class="screen" style="justify-content: flex-start; padding-top: 400px;">
+            <div id="para1" class="big-para"></div>
+            <div id="para2" class="big-para"></div>
+            <div id="para3" class="big-para"></div>
+            <div id="para4" class="big-para"></div>
+        </div>
+
+        <div id="cakeSection" class="hidden screen">
+            <div class="cake-container" onclick="startBlowCountdown()">
+                <div class="flame" id="flame">🔥</div>
+                🎂
+            </div>
+            <h2 id="blowMsg" style="font-size: 3rem; color: var(--dark-pink); margin-top: -50px;">A wish is waiting...</h2>
+        </div>
+    </section>
+
+    <section id="page3" class="screen hidden">
+        <h1 style="font-size: 3.5rem; margin-bottom: 60px; color: var(--dark-pink);">Your Gifts</h1>
+        <div class="gift-container">
+            <div class="gift-box" onclick="openGift(1)">🎁</div>
+            <div class="gift-box" onclick="openGift(2)">🎁</div>
+            <div class="gift-box" onclick="openGift(3)">🎁</div>
+            <div class="gift-box" onclick="openGift(4)">🎁</div>
+        </div>
+        <div style="height: 100vh;"></div>
+        <h1 id="finalMsg" style="font-size: clamp(3rem, 8vw, 6rem); color: var(--dark-pink); padding-bottom: 200px;">YOU ARE LOVED. 💖</h1>
+    </section>
+
+    <div id="photoModal" class="photo-overlay hidden">
+        <div class="photo-card">
+            <img id="modalImg" src="" style="max-height: 60vh; width: 100%; border-radius: 10px; object-fit: cover;">
+            <h2 id="modalTxt" style="color: #333; margin: 20px 0;"></h2>
+            <button onclick="closeGift()">Next Surprise</button>
+        </div>
+    </div>
+
+    <script>
+        // HANDLE LOADING
+        window.addEventListener('load', () => {
+            const loader = document.getElementById('loader');
+            loader.style.opacity = '0';
+            setTimeout(() => loader.style.display = 'none', 1000);
+        });
+
+        const birthDate = new Date("August 14, 2008 00:00:00");
+        let giftsOpened = 0;
+
+        const messages = [
+            "August 14, 2008. The day the world changed forever.",
+            "Since then, you've brought a light into this world that nobody else can match.",
+            "Every year you grow more beautiful, more wise, and more irreplaceable.",
+            "Today isn't just a date. It's a celebration of every second you've been here."
+        ];
+
+        function initiateSequence() {
+            document.getElementById('page1').classList.add('hidden');
+            document.getElementById('page2').classList.remove('hidden');
+            document.getElementById('bgMusic').play().catch(e => console.log("Audio play blocked"));
+            
+            startEmojiRain();
+            setInterval(updateDays, 1000);
+            
+            // Wait 3 seconds before starting the first paragraph
+            setTimeout(() => {
+                typeParagraph(0);
+            }, 3000);
+        }
+
+        function updateDays() {
+            const now = new Date();
+            const diff = now - birthDate;
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            document.getElementById('daysAlive').innerText = `${days.toLocaleString()} Days of You`;
+        }
+
+        function typeParagraph(index) {
+            if (index >= messages.length) {
+                setTimeout(() => {
+                    document.getElementById('cakeSection').classList.remove('hidden');
+                    document.getElementById('cakeSection').scrollIntoView({ behavior: 'smooth' });
+                }, 3000);
+                return;
+            }
+
+            const container = document.getElementById(`para${index + 1}`);
+            const words = messages[index].split(" ");
+            
+            container.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            let letterIdx = 0;
+            words.forEach(word => {
+                const wordSpan = document.createElement("span");
+                wordSpan.className = "word-wrapper";
+                word.split("").forEach(char => {
+                    const letter = document.createElement("span");
+                    letter.innerText = char;
+                    letter.className = "letter";
+                    letter.style.animationDelay = `${letterIdx * 0.05}s`;
+                    wordSpan.appendChild(letter);
+                    letterIdx++;
+                });
+                container.appendChild(wordSpan);
+            });
+
+            // Slower transition between paragraphs
+            setTimeout(() => {
+                typeParagraph(index + 1);
+            }, (letterIdx * 50) + 4500); 
+        }
+
+        function startBlowCountdown() {
+            let count = 3;
+            const msg = document.getElementById('blowMsg');
+            const timer = setInterval(() => {
+                msg.innerText = `Blow in ${count}...`;
+                count--;
+                if (count < 0) {
+                    clearInterval(timer);
+                    msg.innerText = "LET'S GO!!";
+                    document.getElementById('flame').style.display = 'none';
+                    setTimeout(() => {
+                        document.getElementById('page2').classList.add('hidden');
+                        document.getElementById('page3').classList.remove('hidden');
+                        window.scrollTo(0, 0);
+                    }, 2000);
+                }
+            }, 1000);
+        }
+
+        function startEmojiRain() {
+            const emojis = ['💖', '🎂', '🎊', '🎉', '✨'];
+            setInterval(() => {
+                const e = document.createElement('div');
+                e.className = 'emoji';
+                e.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+                e.style.left = Math.random() * 95 + "vw";
+                e.style.animationDuration = (Math.random() * 3 + 4) + "s";
+                document.body.appendChild(e);
+                setTimeout(() => e.remove(), 7000);
+            }, 500);
+        }
+
+        function openGift(id) {
+            const data = {
+                1: { img: 'photo1.jpg', txt: 'The start of a legacy.' },
+                2: { img: 'photo2.jpg', txt: 'Unforgettable moments.' },
+                3: { img: 'photo3.jpg', txt: 'Your radiant smile.' },
+                4: { img: 'photo4.jpg', txt: 'To many more years!' }
+            };
+            document.getElementById('modalImg').src = data[id].img;
+            document.getElementById('modalTxt').innerText = data[id].txt;
+            document.getElementById('photoModal').classList.remove('hidden');
+        }
+
+        function closeGift() {
+            document.getElementById('photoModal').classList.add('hidden');
+            giftsOpened++;
+            if (giftsOpened >= 4) {
+                setTimeout(() => {
+                    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+                }, 1000);
+            }
+        }
+    </script>
+</body>
+</html>
